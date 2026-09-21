@@ -10,39 +10,41 @@ int main()
     readable_file = stdin; 
     char *new_line; 
     int line = 1; 
+    int accepted_line = 0;
+    int malformed_line = 0;
     while ((new_line = fgets(string_buffer, BUFFER_SIZE, readable_file)) != NULL)
     {
         char *first_colon = strchr(new_line, ':');
-        if (first_colon != NULL)
+        int key_length = first_colon - new_line; 
+        if (first_colon != NULL && new_line != first_colon)
         {
-            printf("Line %d: key=%ld ", line, (first_colon - new_line));
+            printf("Line %d: key=%.*s ", line, key_length, new_line);
             printf("value=%s", first_colon + 1); 
             line++; 
+            accepted_line++; 
         }else if (first_colon == NULL)
         {
             printf("Line %d: malformed, no colon\n", line);
             line++; 
-        } else if ((first_colon - new_line) == 0)
+            malformed_line++; 
+        } else if (new_line == first_colon)
         {
             printf("Line %d: malformed, no key\n", line);
-        }
-    }
-    //printf("%s", new_line); 
-    //char formatted_buffer[BUFFER_SIZE]; 
-    //strncpy(new_line, formatted_buffer, index_of_first_colon); 
-    //char *first_colon = strchr(new_line, ':'); 
-    //printf("%d\n", *first_colon);
-    /*int index_of_first_colon = 0; 
-    for (unsigned int i = 0; i < strlen(new_line); i++)
-    {
-        if (new_line[i] == 58)
+            line++; 
+            malformed_line++; 
+        } else
         {
-            index_of_first_colon = i; 
-            break; 
+            printf("Line %d: malformed, no value\n", line);
+            line++; 
+            malformed_line++; 
         }
-    }*/
-    //strncpy(new_line, formatted_buffer, index_of_first_colon); 
-    //printf("%s", formatted_buffer);
-    //printf("%d", index_of_first_colon);
+        printf("%p\n", first_colon + 1);
+        //printf("%p\n", new_line); 
+        //printf("%d\n", key_length);
+        //printf("%p\n", (new_line + key_length)); 
+    }
+    printf("Pairs parsed: %d\n", accepted_line);
+    printf("Malformed lines: %d\n", malformed_line);
+    
     return 0; 
 }
