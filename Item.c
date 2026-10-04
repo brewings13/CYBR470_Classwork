@@ -3,6 +3,20 @@
 #include <string.h>
 #include "Item.h"
 
+char *quote_remover(char *line_to_strip)
+{
+    if (strlen(line_to_strip) < 2)
+    {
+        return line_to_strip; 
+    }
+    if (line_to_strip[0] == '\"')
+    {
+        line_to_strip++; 
+    }
+    line_to_strip[strcspn(line_to_strip, "\"")] = '\0'; 
+    return line_to_strip; 
+}
+
 
 /*
  *  Loads items from filename into items[].  Each line of the file is:
@@ -10,6 +24,7 @@
  *  Returns the number of items loaded, or -1 if the file cannot be opened
  *  or no valid items are found.  Malformed lines are skipped.
  */
+
 
 int ItemLoadFromFile(Item items[], int maxItems, char *filename)
 { 
@@ -24,21 +39,12 @@ int ItemLoadFromFile(Item items[], int maxItems, char *filename)
     int count = 0; 
     while (fgets(line, sizeof(line), fp) != NULL && count <= maxItems)
     {
-        strncpy(items[count].itemName, strtok(line + 1, "\","), MAX_ITEM_NAME_STRING); 
-        printf("%s\n", items[count].itemName);
-        strncpy(items[count].itemDescription, strtok(NULL, "\","), MAX_ITEM_DESCRIPTION_STRING); 
-        printf("%s\n", items[count].itemDescription);
-        strncpy(items[count].targetAsset, strsep(line, "\","), MAX_ASSET_TYPE_STRING); 
-        printf("%s\n", items[count].targetAsset);
-        strncpy(items[count].actionText, strsep(line, "\","), MAX_ACTION_TEXT_STRING); 
-        printf("%s\n", items[count].actionText);
-        char *token = strtok(NULL, "\",");
-        if (token == NULL)
-        {
-            perror("bad read"); 
-        } 
-        items[count].itemUse = atoi(token); 
-        printf("%d\n", items[count].itemUse); 
+        char *next_item = line; 
+        strncpy(items[count].itemName, quote_remover(strsep(&next_item, ",")), MAX_ITEM_NAME_STRING); 
+        strncpy(items[count].itemDescription, quote_remover(strsep(&next_item, ",")), MAX_ITEM_DESCRIPTION_STRING); 
+        strncpy(items[count].targetAsset, quote_remover(strsep(&next_item, ",")), MAX_ASSET_TYPE_STRING); 
+        strncpy(items[count].actionText, quote_remover(strsep(&next_item, ",")), MAX_ACTION_TEXT_STRING); 
+        items[count].itemUse = atoi(strsep(&next_item, ","));
         count++; 
     }
     fclose(fp); 
