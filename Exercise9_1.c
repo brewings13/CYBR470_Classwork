@@ -56,12 +56,19 @@ int main(void)
         pNewRule->pNext = pHead;    //sets pNewRule's 'next' pointer to the current head of the list
         pHead = pNewRule;   //sets the head pointer to point at pNewRule, which is the new head of the list
     }
-
+    
     if (status == 0)    //executes if status is 0 (loop was successful)
     {
         print_chain(pHead);
     }
 
-    free(pHead);    //frees the memory allocated for the head pointer which frees the entire list 
+    struct Rule *pCurrent = pHead;  //declares a Rule pointer to traverse the list and free each node 
+    while (pCurrent != NULL)        //executes while pCurrent has data
+    {
+        struct Rule *pNextNode = pCurrent->pNext;   //declares a pointer to the next node in the list
+        free(pCurrent);     //frees the memory for the current node
+        pCurrent = pNextNode;   //sets the current pointer to the next node to continue freeing memory
+    }
+    pHead = NULL;     //sets the pHead pointer to NULL, allowing list to be reused 
     return status;  //return status variable 
 }
